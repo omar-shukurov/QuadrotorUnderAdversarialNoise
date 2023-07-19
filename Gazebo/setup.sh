@@ -1,4 +1,4 @@
-# mkdir -p ~/catkin_ws/src/IMAV_2017_Virtual_Challenge
+mkdir -p ~/catkin_ws/src/IMAV_2017_Virtual_Challenge
 cp -r * ~/catkin_ws/src/IMAV_2017_Virtual_Challenge
 
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -44,7 +44,7 @@ sudo apt install ros-melodic-hector-gazebo-plugins ros-melodic-hector-sensors-de
 # fi
 
 cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins
-# mkdir -p build
+mkdir -p build
 cd build
 cmake ..
 make
