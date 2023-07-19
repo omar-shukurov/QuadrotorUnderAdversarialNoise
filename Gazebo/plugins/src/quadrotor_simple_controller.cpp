@@ -128,8 +128,8 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
   controllers_.velocity_z.Load(_sdf, "velocityZ");
 
   // Get inertia and mass of quadrotor body
-  inertia = link->GetInertial()->GetPrincipalMoments();
-  mass = link->GetInertial()->GetMass();
+  inertia = link->GetInertial()->PrincipalMoments();
+  mass = link->GetInertial()->Mass();
 
   node_handle_ = new ros::NodeHandle(namespace_);
 
@@ -186,11 +186,11 @@ void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::Twis
   velocity_command_ = *velocity;
 
 
-  static common::Time last_sim_time = world->GetSimTime();
+  static common::Time last_sim_time = world->SimTime();
   static double time_counter_for_drift_noise = 0;
   static double drift_noise[4] = {0.0, 0.0, 0.0, 0.0};
   // Get simulator time
-  common::Time cur_sim_time = world->GetSimTime();
+  common::Time cur_sim_time = world->SimTime();
   double dt = (cur_sim_time - last_sim_time).Double();
   // save last time stamp
   last_sim_time = cur_sim_time;
@@ -216,19 +216,19 @@ void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::Twis
 
 void GazeboQuadrotorSimpleController::ImuCallback(const sensor_msgs::ImuConstPtr& imu)
 {
-  pose.rot.Set(imu->orientation.w, imu->orientation.x, imu->orientation.y, imu->orientation.z);
-  euler = pose.rot.GetAsEuler();
-  angular_velocity = pose.rot.RotateVector(math::Vector3(imu->angular_velocity.x, imu->angular_velocity.y, imu->angular_velocity.z));
+  pose.Rot().Set(imu->orientation.w, imu->orientation.x, imu->orientation.y, imu->orientation.z);
+  euler = pose.Rot().Euler();
+  angular_velocity = pose.Rot().RotateVector(ignition::math::Vector3d(imu->angular_velocity.x, imu->angular_velocity.y, imu->angular_velocity.z));
 }
 
 void GazeboQuadrotorSimpleController::StateCallback(const nav_msgs::OdometryConstPtr& state)
 {
-  math::Vector3 velocity1(velocity);
+  ignition::math::Vector3d velocity1(velocity);
 
   if (imu_topic_.empty()) {
-    pose.pos.Set(state->pose.pose.position.x, state->pose.pose.position.y, state->pose.pose.position.z);
-    pose.rot.Set(state->pose.pose.orientation.w, state->pose.pose.orientation.x, state->pose.pose.orientation.y, state->pose.pose.orientation.z);
-    euler = pose.rot.GetAsEuler();
+    pose.Pos().Set(state->pose.pose.position.x, state->pose.pose.position.y, state->pose.pose.position.z);
+    pose.Rot().Set(state->pose.pose.orientation.w, state->pose.pose.orientation.x, state->pose.pose.orientation.y, state->pose.pose.orientation.z);
+    euler = pose.Rot().Euler();
     angular_velocity.Set(state->twist.twist.angular.x, state->twist.twist.angular.y, state->twist.twist.angular.z);
   }
 
@@ -248,37 +248,37 @@ void GazeboQuadrotorSimpleController::StateCallback(const nav_msgs::OdometryCons
 // Update the controller
 void GazeboQuadrotorSimpleController::Update()
 {
-  math::Vector3 force, torque;
+  ignition::math::Vector3d force, torque;
 
   // Get new commands/state
   callback_queue_.callAvailable();
 
   // Get simulator time
-  common::Time sim_time = world->GetSimTime();
+  common::Time sim_time = world->SimTime();
   double dt = (sim_time - last_time).Double();
   if (dt == 0.0) return;
 
   // Get Pose/Orientation from Gazebo (if no state subscriber is active)
   if (imu_topic_.empty()) {
-    pose = link->GetWorldPose();
-    angular_velocity = link->GetWorldAngularVel();
-    euler = pose.rot.GetAsEuler();
+    pose = link->WorldPose();
+    angular_velocity = link->WorldAngularVel();
+    euler = pose.Rot().Euler();
   }
   if (state_topic_.empty()) {
-    acceleration = (link->GetWorldLinearVel() - velocity) / dt;
-    velocity = link->GetWorldLinearVel();
+    acceleration = (link->WorldLinearVel() - velocity) / dt;
+    velocity = link->WorldLinearVel();
   }
 
   // Get gravity
-  math::Vector3 gravity_body = pose.rot.RotateVector(world->GetPhysicsEngine()->GetGravity());
+  ignition::math::Vector3d gravity_body = pose.Rot().RotateVector(world->GetPhysicsEngine()->GetGravity());
   double gravity = gravity_body.GetLength();
   double load_factor = gravity * gravity / world->GetPhysicsEngine()->GetGravity().Dot(gravity_body);  // Get gravity
 
   // Rotate vectors to coordinate frames relevant for control
-  math::Quaternion heading_quaternion(cos(euler.z/2),0,0,sin(euler.z/2));
-  math::Vector3 velocity_xy = heading_quaternion.RotateVectorReverse(velocity);
-  math::Vector3 acceleration_xy = heading_quaternion.RotateVectorReverse(acceleration);
-  math::Vector3 angular_velocity_body = pose.rot.RotateVectorReverse(angular_velocity);
+  ignition::math::Quaterniond heading_quaternion(cos(euler.z/2),0,0,sin(euler.z/2));
+  ignition::math::Vector3d velocity_xy = heading_quaternion.RotateVectorReverse(velocity);
+  ignition::math::Vector3d acceleration_xy = heading_quaternion.RotateVectorReverse(acceleration);
+  ignition::math::Vector3d angular_velocity_body = pose.Rot().RotateVectorReverse(angular_velocity);
 
   // update controllers
   force.Set(0.0, 0.0, 0.0);
@@ -313,8 +313,8 @@ void GazeboQuadrotorSimpleController::Reset()
   controllers_.velocity_y.reset();
   controllers_.velocity_z.reset();
 
-  link->SetForce(math::Vector3(0,0,0));
-  link->SetTorque(math::Vector3(0,0,0));
+  link->SetForce(ignition::math::Vector3d(0,0,0));
+  link->SetTorque(ignition::math::Vector3d(0,0,0));
 
   // reset state
   pose.Reset();
