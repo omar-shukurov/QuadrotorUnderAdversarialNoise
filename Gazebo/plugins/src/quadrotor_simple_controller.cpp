@@ -89,7 +89,7 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
   }
   else {
     link_name_ = _sdf->GetElement("bodyName")->Get<std::string>("");
-    link = boost::dynamic_pointer_cast<physics::Link>(world->GetEntity(link_name_));
+    link = boost::dynamic_pointer_cast<physics::Link>(world->EntityByName(link_name_));
   }
 
   if (!link)
@@ -270,12 +270,12 @@ void GazeboQuadrotorSimpleController::Update()
   }
 
   // Get gravity
-  ignition::math::Vector3d gravity_body = pose.Rot().RotateVector(world->GetPhysicsEngine()->GetGravity());
-  double gravity = gravity_body.GetLength();
-  double load_factor = gravity * gravity / world->GetPhysicsEngine()->GetGravity().Dot(gravity_body);  // Get gravity
+  ignition::math::Vector3d gravity_body = pose.Rot().RotateVector(world->Gravity());
+  double gravity = gravity_body.Length();
+  double load_factor = gravity * gravity / world->Gravity().Dot(gravity_body);  // Get gravity
 
   // Rotate vectors to coordinate frames relevant for control
-  ignition::math::Quaterniond heading_quaternion(cos(euler.z/2),0,0,sin(euler.z/2));
+  ignition::math::Quaterniond heading_quaternion(cos(euler.Z()/2),0,0,sin(euler.Z()/2));
   ignition::math::Vector3d velocity_xy = heading_quaternion.RotateVectorReverse(velocity);
   ignition::math::Vector3d acceleration_xy = heading_quaternion.RotateVectorReverse(acceleration);
   ignition::math::Vector3d angular_velocity_body = pose.Rot().RotateVectorReverse(angular_velocity);
@@ -283,16 +283,16 @@ void GazeboQuadrotorSimpleController::Update()
   // update controllers
   force.Set(0.0, 0.0, 0.0);
   torque.Set(0.0, 0.0, 0.0);
-  double pitch_command =  controllers_.velocity_x.update(velocity_command_.linear.x, velocity_xy.x, acceleration_xy.x, dt) / gravity;
-  double roll_command  = -controllers_.velocity_y.update(velocity_command_.linear.y, velocity_xy.y, acceleration_xy.y, dt) / gravity;
-  torque.x = inertia.x *  controllers_.roll.update(roll_command, euler.x, angular_velocity_body.x, dt);
-  torque.y = inertia.y *  controllers_.pitch.update(pitch_command, euler.y, angular_velocity_body.y, dt);
+  double pitch_command =  controllers_.velocity_x.update(velocity_command_.linear.x, velocity_xy.X(), acceleration_xy.X(), dt) / gravity;
+  double roll_command  = -controllers_.velocity_y.update(velocity_command_.linear.y, velocity_xy.Y(), acceleration_xy.Y(), dt) / gravity;
+  torque.X() = inertia.X() *  controllers_.roll.update(roll_command, euler.X(), angular_velocity_body.X(), dt);
+  torque.Y() = inertia.Y() *  controllers_.pitch.update(pitch_command, euler.Y(), angular_velocity_body.Y(), dt);
   // torque.x = inertia.x *  controllers_.roll.update(-velocity_command_.linear.y/gravity, euler.x, angular_velocity_body.x, dt);
   // torque.y = inertia.y *  controllers_.pitch.update(velocity_command_.linear.x/gravity, euler.y, angular_velocity_body.y, dt);
-  torque.z = inertia.z *  controllers_.yaw.update(velocity_command_.angular.z, angular_velocity.z, 0, dt);
-  force.z  = mass      * (controllers_.velocity_z.update(velocity_command_.linear.z,  velocity.z, acceleration.z, dt) + load_factor * gravity);
-  if (max_force_ > 0.0 && force.z > max_force_) force.z = max_force_;
-  if (force.z < 0.0) force.z = 0.0;
+  torque.Z() = inertia.Z() *  controllers_.yaw.update(velocity_command_.angular.z, angular_velocity.Z(), 0, dt);
+  force.Z()  = mass      * (controllers_.velocity_z.update(velocity_command_.linear.z,  velocity.Z(), acceleration.Z(), dt) + load_factor * gravity);
+  if (max_force_ > 0.0 && force.Z() > max_force_) force.Z() = max_force_;
+  if (force.Z() < 0.0) force.Z() = 0.0;
 
 
   link->AddRelativeForce(force);
