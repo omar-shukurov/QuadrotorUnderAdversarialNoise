@@ -49,10 +49,12 @@
 #include "gazebo/gazebo.hh"
 #include "gazebo/common/Plugin.hh"
 
+
 #include <ros/callback_queue.h>
 #include <ros/ros.h>
 
 #include <geometry_msgs/Twist.h>
+#include <gazebo_msgs/ContactsState.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 //#include <ardrone_autonomy/Navdata.h>
@@ -94,6 +96,11 @@ private:
   ros::Subscriber velocity_subscriber_;
   ros::Subscriber imu_subscriber_;
   ros::Subscriber state_subscriber_;
+  ros::Subscriber collision_subscriber_;
+
+
+
+  
 
   // extra robot navi info subscriber
   std::string navdata_topic_;
@@ -110,12 +117,14 @@ private:
   void VelocityCallback(const geometry_msgs::TwistConstPtr&);
   void ImuCallback(const sensor_msgs::ImuConstPtr&);
   void StateCallback(const nav_msgs::OdometryConstPtr&);
+  void CollisionCallback(const gazebo_msgs::ContactsState::ConstPtr&);
 //  void NavdataCallback(const ardrone_autonomy::NavdataConstPtr& msg);
 
   ros::Time state_stamp;
-  math::Pose pose;
-  math::Vector3 euler, velocity, acceleration, angular_velocity;
+  ignition::math::Pose3d pose;
+  ignition::math::Vector3d euler, velocity, acceleration, angular_velocity;
 
+  std::string collision_topic_;
   std::string link_name_;
   std::string namespace_;
   std::string velocity_topic_;
@@ -125,6 +134,7 @@ private:
   double motion_small_noise_;
   double motion_drift_noise_;
   double motion_drift_noise_time_;
+  int collision_count_;
 
   class PIDController {
   public:
@@ -156,7 +166,7 @@ private:
     PIDController velocity_z;
   } controllers_;
 
-  math::Vector3 inertia;
+  ignition::math::Vector3d inertia;
   double mass;
 
   /// \brief save last_time
