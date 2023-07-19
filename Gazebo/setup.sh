@@ -38,8 +38,10 @@ elif [ "$1" == "normal" ]; then
     cp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/controllers/quadrotor_simple_controller.cpp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/src/quadrotor_simple_controller.cpp
 elif [ "$1" == "noisy_collision" ]; then
     cp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/controllers/quadrotor_simple_controller_noisy_collision.cpp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/src/quadrotor_simple_controller.cpp
+elif [ "$1" == "collision" ]; then
+    cp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/controllers/quadrotor_simple_controller_collision.cpp ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/src/quadrotor_simple_controller.cpp
 else
-    echo "Invalid argument. Please use 'noisy', 'normal' or 'noisy_collision'."
+    echo "Invalid argument. Please use 'noisy', 'normal', 'collision', 'noisy_collision' as an argument."
     exit 1
 fi
 
