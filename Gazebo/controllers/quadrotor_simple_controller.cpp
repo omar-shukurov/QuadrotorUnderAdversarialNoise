@@ -30,10 +30,6 @@
 #include "sdf/sdf.hh"
 #include "gazebo/common/Events.hh"
 #include "gazebo/physics/physics.hh"
-#include <ignition/math/Pose3.hh>
-#include <ignition/math/Vector3.hh>
-#include <gazebo_msgs/ContactsState.h>
-
 
 #include <cmath>
 #include <stdlib.h>
@@ -123,11 +119,6 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
   else
     motion_drift_noise_time_ = _sdf->GetElement("motionDriftNoiseTime")->Get<double>("");
 
-  if (!_sdf->HasElement("collisionCount"))
-    collision_count_ = 0;
-  else
-    collision_count_ = _sdf->GetElement("collisionCount")->Get<int>("");
-
 
   controllers_.roll.Load(_sdf, "rollpitch");
   controllers_.pitch.Load(_sdf, "rollpitch");
@@ -175,8 +166,7 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
 
     ROS_INFO_NAMED("quadrotor_simple_controller", "Using state information on topic %s as source of state information.", state_topic_.c_str());
   }
-  
-  
+
   // callback_queue_thread_ = boost::thread( boost::bind( &GazeboQuadrotorSimpleController::CallbackQueueThread,this ) );
 
 
@@ -194,10 +184,6 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
 void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::TwistConstPtr& velocity)
 {
   velocity_command_ = *velocity;
-
-// Add Gaussian noise to the linear velocity commands
-  std::default_random_engine generator;
-  std::normal_distribution<double> distribution(0.0, 0.5); // mean=0, std_dev=0.1, change as needed
 
 
   static common::Time last_sim_time = world->SimTime();
@@ -225,17 +211,6 @@ void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::Twis
   velocity_command_.linear.y += drift_noise[1] + 2*motion_small_noise_*(drand48()-0.5);
   velocity_command_.linear.z += drift_noise[2] + 2*motion_small_noise_*(drand48()-0.5);
   velocity_command_.angular.z += drift_noise[3] + 2*motion_small_noise_*(drand48()-0.5);
-
-  //Add adversarial Gaussian noise to linear velocity
-  velocity_command_.linear.x += distribution(generator);
-  velocity_command_.linear.y += distribution(generator);
-  velocity_command_.linear.z += distribution(generator);
-
-  // Add adversarial Gaussian noise to the angular velocity 
-  velocity_command_.angular.x += distribution(generator);
-  velocity_command_.angular.y += distribution(generator);
-  velocity_command_.angular.z += distribution(generator); 
-
 
 }
 
@@ -269,8 +244,6 @@ void GazeboQuadrotorSimpleController::StateCallback(const nav_msgs::OdometryCons
   }
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
 void GazeboQuadrotorSimpleController::Update()
@@ -297,10 +270,9 @@ void GazeboQuadrotorSimpleController::Update()
   }
 
   // Get gravity
-    ignition::math::Vector3d gravity_body = pose.Rot().RotateVector(world->Gravity());
+  ignition::math::Vector3d gravity_body = pose.Rot().RotateVector(world->Gravity());
   double gravity = gravity_body.Length();
   double load_factor = gravity * gravity / world->Gravity().Dot(gravity_body);  // Get gravity
-
 
   // Rotate vectors to coordinate frames relevant for control
   ignition::math::Quaterniond heading_quaternion(cos(euler.Z()/2),0,0,sin(euler.Z()/2));
@@ -322,7 +294,7 @@ void GazeboQuadrotorSimpleController::Update()
   if (max_force_ > 0.0 && force.Z() > max_force_) force.Z() = max_force_;
   if (force.Z() < 0.0) force.Z() = 0.0;
 
-  
+
   link->AddRelativeForce(force);
   link->AddRelativeTorque(torque);
   
@@ -414,4 +386,3 @@ void GazeboQuadrotorSimpleController::PIDController::reset()
 GZ_REGISTER_MODEL_PLUGIN(GazeboQuadrotorSimpleController)
 
 } // namespace gazebo
-
