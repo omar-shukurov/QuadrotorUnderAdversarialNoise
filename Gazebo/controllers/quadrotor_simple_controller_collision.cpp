@@ -30,6 +30,9 @@
 #include "sdf/sdf.hh"
 #include "gazebo/common/Events.hh"
 #include "gazebo/physics/physics.hh"
+#include <ignition/math/Pose3.hh>
+#include <ignition/math/Vector3.hh>
+#include <gazebo_msgs/ContactsState.h>
 
 #include <cmath>
 #include <stdlib.h>
@@ -102,7 +105,7 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
   {
     ROS_FATAL("gazebo_ros_baro plugin error: bodyName: %s does not exist\n", link_name_.c_str());
     return;
-  }
+  } 
 
   if (!_sdf->HasElement("maxForce"))
     max_force_ = -1;
