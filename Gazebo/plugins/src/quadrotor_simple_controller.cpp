@@ -45,7 +45,7 @@ GazeboQuadrotorSimpleController::GazeboQuadrotorSimpleController()
 // Destructor
 GazeboQuadrotorSimpleController::~GazeboQuadrotorSimpleController()
 {
-  event::Events::DisconnectWorldUpdateBegin(updateConnection);
+  updateConnection.reset();
 
   node_handle_->shutdown();
   delete node_handle_;
