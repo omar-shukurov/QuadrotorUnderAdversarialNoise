@@ -30,6 +30,9 @@
 #include "sdf/sdf.hh"
 #include "gazebo/common/Events.hh"
 #include "gazebo/physics/physics.hh"
+#include <ignition/math/Pose3.hh>
+#include <ignition/math/Vector3.hh>
+#include <gazebo_msgs/ContactsState.h>
 
 #include <cmath>
 #include <stdlib.h>

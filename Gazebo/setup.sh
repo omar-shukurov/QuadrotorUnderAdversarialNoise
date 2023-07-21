@@ -46,7 +46,7 @@ else
 fi
 
 cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins
-mkdir -p build
+# mkdir -p build
 cd build
 cmake ..
 make
@@ -59,7 +59,7 @@ cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/worlds/xacro
 rosrun xacro xacro --inorder imav_indoor.world.xacro > ../imav_indoor.world 
 
 
-echo 'export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/build:/opt/ros/melodic/lib' >> ~/.bashrc
+echo 'export GAZEBO_PLUGIN_PATH=:~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/build:/opt/ros/melodic/lib:/usr/include/gazebo-9' >> ~/.bashrc
 
 
 # cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/

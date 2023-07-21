@@ -179,12 +179,12 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
   if (_sdf->HasElement("collisionTopic"))
   {
     ros::SubscribeOptions collision_ops = ros::SubscribeOptions::create<gazebo_msgs::ContactsState>(
-      collision_topic, 1,
+      collision_topic_, 1,
       boost::bind(&GazeboQuadrotorSimpleController::CollisionCallback, this, _1),
       ros::VoidPtr(), &callback_queue_);
     collision_subscriber_ = node_handle_->subscribe(collision_ops);
 
-    ROS_INFO_NAMED("quadrotor_simple_controller", "Subscribed to collision information on topic %s.", (namespace_ + collision_topic).c_str());
+    ROS_INFO_NAMED("quadrotor_simple_controller", "Subscribed to collision information on topic %s.", (namespace_ + collision_topic_).c_str());
   
   }
 

@@ -26,21 +26,21 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-/*
-* quadrotor motion controller:
-*
-* This software is a motion control gazebo plugin for the Ardrone simulator
-*
-* change:
-* 1. Noise is add to the callback function: VelocityCallback
-* 2. Create a subscriber for rostopic /ardrone/navdata
-* 3. An additional force and torque calculation is added base on the robot state information in /ardrone/navdata 
-*
-* Created on: Oct 22, 2012
-* Author: Hongrong huang
-*
-*
-*/
+// /*
+// quadrotor motion controller:
+// *
+// * This software is a motion control gazebo plugin for the Ardrone simulator
+// *
+// * change:
+// * 1. Noise is add to the callback function: VelocityCallback
+// * 2. Create a subscriber for rostopic /ardrone/navdata
+// * 3. An additional force and torque calculation is added base on the robot state information in /ardrone/navdata 
+// *
+// * Created on: Oct 22, 2012
+// * Author: Hongrong huang
+// *
+// *
+// */
 
 #ifndef HECTOR_GAZEBO_PLUGINS_QUADROTOR_SIMPLE_CONTROLLER_H
 #define HECTOR_GAZEBO_PLUGINS_QUADROTOR_SIMPLE_CONTROLLER_H

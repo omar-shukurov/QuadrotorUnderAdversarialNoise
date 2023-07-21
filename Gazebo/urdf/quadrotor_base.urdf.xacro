@@ -26,6 +26,20 @@
           <mesh filename="package://imav_2017/meshes/quadrotor/quadrotor_4.stl"/>
         </geometry>
       </collision>
+<!--       
+      <gazebo reference="base_link">
+        <sensor type="contact" name="base_link_contact_sensor">
+          <contact>
+            <collision>base_link_collision</collision>
+          </contact>
+          <plugin name="gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
+            <frameName>base_link</frameName>
+            <bumperTopicName>collision</bumperTopicName>
+            <updateRate>100.0</updateRate>
+          </plugin>
+        </sensor>
+      </gazebo> -->
+
     </link>
   </xacro:macro>
 </robot>
