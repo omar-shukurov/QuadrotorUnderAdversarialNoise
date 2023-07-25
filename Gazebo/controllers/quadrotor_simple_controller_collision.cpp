@@ -180,19 +180,21 @@ void GazeboQuadrotorSimpleController::Load(physics::ModelPtr _model, sdf::Elemen
 
     ROS_INFO_NAMED("quadrotor_simple_controller", "Using state information on topic %s as source of state information.", state_topic_.c_str());
   }
+  
+  collision_count_publisher_ = node_handle_->advertise<std_msgs::Int32>("collision_count", 1);
 
   // subscribe collision
-  if (!collision_topic_.empty())
-  {
-    ros::SubscribeOptions ops = ros::SubscribeOptions::create<gazebo_msgs::ContactsState>(
-      collision_topic_, 1,
-      boost::bind(&GazeboQuadrotorSimpleController::CollisionCallback, this, _1),
-      ros::VoidPtr(), &callback_queue_);
-    collision_subscriber_ = node_handle_->subscribe(ops);
+  // if (!collision_topic_.empty())
+  // {
+  //   ros::SubscribeOptions ops = ros::SubscribeOptions::create<gazebo_msgs::ContactsState>(
+  //     collision_topic_, 1,
+  //     boost::bind(&GazeboQuadrotorSimpleController::CollisionCallback, this, _1),
+  //     ros::VoidPtr(), &callback_queue_);
+  //   collision_subscriber_ = node_handle_->subscribe(ops);
 
-    ROS_INFO_NAMED("quadrotor_simple_controller", "Subscribed to collision information on topic %s.", collision_topic_.c_str());
+  //   ROS_INFO_NAMED("quadrotor_simple_controller", "Subscribed to collision information on topic %s.", collision_topic_.c_str());
   
-  }
+  // }
 
 
   // callback_queue_thread_ = boost::thread( boost::bind( &GazeboQuadrotorSimpleController::CallbackQueueThread,this ) );
@@ -272,14 +274,17 @@ void GazeboQuadrotorSimpleController::StateCallback(const nav_msgs::OdometryCons
   }
 }
 
-void GazeboQuadrotorSimpleController::CollisionCallback(const gazebo_msgs::ContactsStateConstPtr& msg)
-{
-  if (!msg->states.empty())
-  {
-    collision_count_++;
-    ROS_WARN("Collision detected! Total collisions: %d", collision_count_);
-  }
-}
+// void GazeboQuadrotorSimpleController::CollisionCallback(const gazebo_msgs::ContactsStateConstPtr& msg)
+// {
+//   std_msgs::Int32 msg2;
+//   msg2.data = collision_count_;
+//   collision_count_publisher_.publish(msg2);
+//   // if (!msg->states.empty())
+//   // {
+//   //   collision_count_++;
+//   //   ROS_WARN("Collision detected! Total collisions: %d", collision_count_);
+//   // }
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
@@ -337,6 +342,19 @@ void GazeboQuadrotorSimpleController::Update()
   
   // save last time stamp
   last_time = sim_time;
+
+   // Get the contact count
+  int contact_count = 0;
+  auto contacts = world->Physics()->GetContactManager()->GetContacts();
+  for (const auto& contact : contacts)
+  {
+    contact_count += contact->count;
+  }
+
+  // Publish the contact count
+  std_msgs::Int32 msg2;
+  msg2.data = contact_count;
+  collision_count_publisher_.publish(msg2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

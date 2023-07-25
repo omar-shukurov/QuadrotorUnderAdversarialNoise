@@ -54,9 +54,14 @@
 #include <ros/ros.h>
 
 #include <geometry_msgs/Twist.h>
-#include <gazebo_msgs/ContactsState.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
+
+#include <gazebo_msgs/ContactsState.h>
+#include "gazebo/physics/Contact.hh"
+#include <std_msgs/Int32.h>
+
+
 //#include <ardrone_autonomy/Navdata.h>
 
 #define UNKNOWN_MODEL       0
@@ -98,6 +103,7 @@ private:
   ros::Subscriber state_subscriber_;
   ros::Subscriber collision_subscriber_;
 
+  ros::Publisher collision_count_publisher_;
 
 
   

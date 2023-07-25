@@ -71,12 +71,12 @@
         <bumperTopic>/${robot_name}/collision</bumperTopic>  
         <collisionTopic>/${robot_name}/collision</collisionTopic>
       </plugin> -->
-      <plugin name="gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
+      <!--<plugin name="gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>100.0</updateRate>
         <frameName>base_link</frameName>  
         <bumperTopicName>/${robot_name}/collision</bumperTopicName>
-      </plugin>
+      </plugin>-->
 
     </gazebo>
   </xacro:macro>
