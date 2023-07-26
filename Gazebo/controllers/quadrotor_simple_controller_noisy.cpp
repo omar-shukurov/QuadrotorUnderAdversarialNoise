@@ -340,8 +340,8 @@ void GazeboQuadrotorSimpleController::Update()
     startTime = sim_time;
     std::cout << "Simulation started at time: " << sim_time << " seconds" << std::endl;
   }
-  // If the simulation has started and more than 2 seconds have passed, start adding noise
-  if (simulationStarted  && (sim_time - startTime).Double() > 2.0 ) {
+  // If the simulation has started and more than 5 seconds have passed, start adding noise
+  if (simulationStarted  && (sim_time - startTime).Double() > 5.0 ) {
     // std::cout << "Sim start time: " << startTime << " seconds" << std::endl;
     // std::cout << "diff time: " << sim_time - startTime << " seconds" << std::endl;
     
