@@ -62,9 +62,5 @@ rosrun xacro xacro --inorder imav_indoor.world.xacro > ../imav_indoor.world
 echo 'export GAZEBO_PLUGIN_PATH=:~/catkin_ws/src/IMAV_2017_Virtual_Challenge/plugins/build:/opt/ros/melodic/lib:/usr/include/gazebo-9' >> ~/.bashrc
 
 
-# cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/
-# ./run_gzb.sh
-
-
-
-
+cd ~/catkin_ws/src/IMAV_2017_Virtual_Challenge/
+./run_gzb.sh

@@ -136,10 +136,17 @@ private:
   std::string velocity_topic_;
   std::string imu_topic_;
   std::string state_topic_;
+  
+  std::default_random_engine generator;
+  std::normal_distribution<double> distribution;
+  bool simulationStarted;
+  common::Time startTime;
+
   double max_force_;
   double motion_small_noise_;
   double motion_drift_noise_;
   double motion_drift_noise_time_;
+  
   int collision_count_;
 
   class PIDController {

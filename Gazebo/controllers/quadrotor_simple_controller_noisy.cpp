@@ -42,7 +42,7 @@ namespace gazebo {
 
 GazeboQuadrotorSimpleController::GazeboQuadrotorSimpleController()
 {
-  
+  distribution = std::normal_distribution<double>(0.0, 0.5);  // mean=0, std_dev=0.5
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,10 +206,6 @@ void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::Twis
 {
   velocity_command_ = *velocity;
 
-// Add Gaussian noise to the linear velocity commands
-  std::default_random_engine generator;
-  std::normal_distribution<double> distribution(0.0, 0.5); // mean=0, std_dev=0.1, change as needed
-
 
   static common::Time last_sim_time = world->SimTime();
   static double time_counter_for_drift_noise = 0;
@@ -237,15 +233,7 @@ void GazeboQuadrotorSimpleController::VelocityCallback(const geometry_msgs::Twis
   velocity_command_.linear.z += drift_noise[2] + 2*motion_small_noise_*(drand48()-0.5);
   velocity_command_.angular.z += drift_noise[3] + 2*motion_small_noise_*(drand48()-0.5);
 
-  //Add adversarial Gaussian noise to linear velocity
-  velocity_command_.linear.x += distribution(generator);
-  velocity_command_.linear.y += distribution(generator);
-  velocity_command_.linear.z += distribution(generator);
 
-  // Add adversarial Gaussian noise to the angular velocity 
-  velocity_command_.angular.x += distribution(generator);
-  velocity_command_.angular.y += distribution(generator);
-  velocity_command_.angular.z += distribution(generator); 
 
 }
 
@@ -295,6 +283,7 @@ void GazeboQuadrotorSimpleController::CollisionCallback(const gazebo_msgs::Conta
 void GazeboQuadrotorSimpleController::Update()
 {
   ignition::math::Vector3d force, torque
+  
 ;
   // Get new commands/state
   callback_queue_.callAvailable();
@@ -341,10 +330,34 @@ void GazeboQuadrotorSimpleController::Update()
   if (max_force_ > 0.0 && force.Z() > max_force_) force.Z() = max_force_;
   if (force.Z() < 0.0) force.Z() = 0.0;
 
-  
+  ignition::math::Vector3d force_noise(distribution(generator), distribution(generator), distribution(generator));
+  ignition::math::Vector3d torque_noise(distribution(generator), distribution(generator), distribution(generator));
+
+  // Check if the simulation has started
+
+  if (!simulationStarted && std::abs(torque.Length()) > 0.01) {
+    simulationStarted  = true; //set simulation started
+    startTime = sim_time;
+    std::cout << "Simulation started at time: " << sim_time << " seconds" << std::endl;
+  }
+  // If the simulation has started and more than 2 seconds have passed, start adding noise
+  if (simulationStarted  && (sim_time - startTime).Double() > 2.0 ) {
+    // std::cout << "Sim start time: " << startTime << " seconds" << std::endl;
+    // std::cout << "diff time: " << sim_time - startTime << " seconds" << std::endl;
+    
+    force += force_noise;
+    torque += torque_noise;
+  }
+  // std::cout << "Current simulation time: " << sim_time << " seconds" << std::endl;
+  // std::cout << "diff time: " << (sim_time - startTime).Double() << " seconds" << std::endl;
+  // std::cout << "Torque noise: " << torque_noise << std::endl;
+  // std::cout << "Torque Y: " << torque.Y() << std::endl;
+  // std::cout << "Torque Z: " << torque.Z() << std::endl;
+
   link->AddRelativeForce(force);
   link->AddRelativeTorque(torque);
   
+
   // save last time stamp
   last_time = sim_time;
 }
