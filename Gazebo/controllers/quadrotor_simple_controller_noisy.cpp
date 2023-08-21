@@ -42,7 +42,8 @@ namespace gazebo {
 
 GazeboQuadrotorSimpleController::GazeboQuadrotorSimpleController()
 {
-  distribution = std::normal_distribution<double>(0.0, 0.5);  // mean=0, std_dev=0.5
+  distribution = std::normal_distribution<double>(0.0, 0.1);  // mean=0, std_dev=0.5 Will be increased by 0.05 each simulation
+  simulationStarted = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,11 +335,10 @@ void GazeboQuadrotorSimpleController::Update()
   ignition::math::Vector3d torque_noise(distribution(generator), distribution(generator), distribution(generator));
 
   // Check if the simulation has started
-
   if (!simulationStarted && std::abs(torque.Length()) > 0.01) {
     simulationStarted  = true; //set simulation started
     startTime = sim_time;
-    std::cout << "Simulation started at time: " << sim_time << " seconds" << std::endl;
+    //std::cout << "Simulation started at time: " << sim_time << " seconds" << std::endl;
   }
   // If the simulation has started and more than 5 seconds have passed, start adding noise
   if (simulationStarted  && (sim_time - startTime).Double() > 5.0 ) {
@@ -353,6 +353,7 @@ void GazeboQuadrotorSimpleController::Update()
   // std::cout << "Torque noise: " << torque_noise << std::endl;
   // std::cout << "Torque Y: " << torque.Y() << std::endl;
   // std::cout << "Torque Z: " << torque.Z() << std::endl;
+  // std::cout << "initial simulationStarted: " << simulationStarted << std::endl;
 
   link->AddRelativeForce(force);
   link->AddRelativeTorque(torque);
