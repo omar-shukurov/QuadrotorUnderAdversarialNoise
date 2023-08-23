@@ -42,7 +42,7 @@ namespace gazebo {
 
 GazeboQuadrotorSimpleController::GazeboQuadrotorSimpleController()
 {
-  distribution = std::normal_distribution<double>(0.0, 0.15);  // mean=0, std_dev will be increased by 0.05 each simulation
+  distribution = std::normal_distribution<double>(0.0, 0.2);  // mean=0, std_dev will be increased by 0.05 each simulation
   simulationStarted = false;
 }
 
