@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import xml.etree.ElementTree as ET
 
-def count_collisions(log_file):
-    tree = ET.parse(log_file)
-    root = tree.getroot()
+# def count_collisions(log_file):
+#     tree = ET.parse(log_file)
+#     root = tree.getroot()
 
-    # Count collisions with a specific pattern in their name
-    collisions = root.findall(".//collision[starts-with(@name, 'base_link_fixed_joint_lump__')]")
+#     # Count collisions with a specific pattern in their name
+#     collisions = root.findall(".//collision[starts-with(@name, 'base_link_fixed_joint_lump__')]")
     
-    return len(collisions)
+#     return len(collisions)
 
 def plot_bag_file(bag_files, labels):
     fig = plt.figure()
@@ -56,9 +56,13 @@ def plot_bag_file(bag_files, labels):
         
         max_velocity = max(velocities) if velocities else 0
 
-        ax.plot(x, y, z, label="{} (Max Vel: {:.2f} m/s)".format(labels[i], max_velocity))
+        avg_velocity = sum(velocities) / len(velocities) if velocities else 0
 
-    xRate=3.5
+        flight_duration = timestamps[-1] - timestamps[0] if timestamps else 0
+
+        ax.plot(x, y, z, label="{} (Max Vel: {:.2f} m/s, Avg Vel: {:.2f} m/s, Duration: {:.2f} s)".format(labels[i], max_velocity, avg_velocity, flight_duration))
+
+    xRate=4
     yRate=1
     zRate=1
 
