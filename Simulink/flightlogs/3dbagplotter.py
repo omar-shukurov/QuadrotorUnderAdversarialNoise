@@ -3,6 +3,16 @@ import rospy
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+import xml.etree.ElementTree as ET
+
+def count_collisions(log_file):
+    tree = ET.parse(log_file)
+    root = tree.getroot()
+
+    # Count collisions with a specific pattern in their name
+    collisions = root.findall(".//collision[starts-with(@name, 'base_link_fixed_joint_lump__')]")
+    
+    return len(collisions)
 
 def plot_bag_file(bag_files, labels):
     fig = plt.figure()
@@ -18,6 +28,7 @@ def plot_bag_file(bag_files, labels):
         x = []
         y = []
         z = []
+        timestamps = []
         
         # Check which topic exists in the bag file
         topics_info = bag.get_type_and_topic_info().topics
@@ -33,8 +44,19 @@ def plot_bag_file(bag_files, labels):
             x.append(msg.pose.pose.position.x)
             y.append(msg.pose.pose.position.y)
             z.append(msg.pose.pose.position.z)
+            timestamps.append(t.to_sec())
 
-        ax.plot(x, y, z, label=labels[i])
+        velocities = []
+        for j in range(1, len(x)):
+            dx = x[j] - x[j-1]
+            dy = y[j] - y[j-1]
+            dz = z[j] - z[j-1]
+            dt = timestamps[j] - timestamps[j-1]
+            velocities.append(np.sqrt(dx**2 + dy**2 + dz**2) / dt)
+        
+        max_velocity = max(velocities) if velocities else 0
+
+        ax.plot(x, y, z, label="{} (Max Vel: {:.2f} m/s)".format(labels[i], max_velocity))
 
     xRate=3.5
     yRate=1
