@@ -94,5 +94,3 @@ bagfile1.bag label1 ...
     bag_files = sys.argv[1::2]
     labels = sys.argv[2::2]
     plot_bag_file(bag_files, labels)
-
-
